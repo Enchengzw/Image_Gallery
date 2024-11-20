@@ -12,7 +12,7 @@ app.use(express.static("Public"));
 
 app.get('/photos/random', async (req, res) => {
     try {
-        const response = await fetch(`${apiURL}/photos/random?client_id=${accessKey}&count=1`);
+        const response = await fetch(`${apiURL}/photos/random?client_id=${accessKey}&count=4`);
         if (!response.ok) {
             throw new Error('Failed to fetch data from API');
         }
