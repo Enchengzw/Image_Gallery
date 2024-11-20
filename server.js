@@ -12,7 +12,8 @@ app.use(express.static("Public"));
 
 app.get('/photos/random', async (req, res) => {
     try {
-        const response = await fetch(`${apiURL}/photos/random?client_id=${accessKey}&count=4`);
+        const page = req.query.page || 1;
+        const response = await fetch(`${apiURL}/photos/random?client_id=${accessKey}&count=4&page=${page}`);
         if (!response.ok) {
             throw new Error('Failed to fetch data from API');
         }
@@ -26,12 +27,13 @@ app.get('/photos/random', async (req, res) => {
 app.get('/search/photos', async (req, res) => {
     try {
         const query = req.query.query;
+        const page = req.query.page || 1;
         if (!query) {
             res.status(400).send('Missing query parameter');
             return;
         }
 
-        const response = await fetch(`${apiURL}/search/photos?query=${encodeURIComponent(query)}&client_id=${accessKey}&per_page=4`);
+        const response = await fetch(`${apiURL}/search/photos?query=${encodeURIComponent(query)}&client_id=${accessKey}&per_page=4&page=${page}`);
         if (!response.ok) {
             throw new Error('Failed to fetch data from API');
         }
