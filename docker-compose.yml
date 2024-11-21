@@ -1,0 +1,21 @@
+services:
+  image-back:
+    build:
+      context: back/
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      ACCESS_KEY: ${ACCESS_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+    container_name: image-back
+    ports:
+      - "5000:5000"
+    restart: always
+  image-front:
+    build:
+      context: front/
+      dockerfile: Dockerfile
+    container_name: image-front
+    ports:
+      - "3000:80"
+    restart: always
