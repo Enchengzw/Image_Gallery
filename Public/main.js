@@ -1,8 +1,10 @@
-const search = document.getElementById('search');
-const bookmarked = document.getElementById('toggled');
-let page_counter = 1;
-let query = document.querySelector('input');
-const  page = document.querySelector('.page');
+const   search = document.getElementById('search');
+const   bookmarked = document.getElementById('toggled');
+let     page_counter = 1;
+let     query = document.querySelector('input');
+const   page = document.querySelector('.page');
+var     log = document.getElementById('log');
+let     logged = localStorage.getItem('logged') || false;
 
 function CreateImageElement(url) {
     let container = document.createElement('div');
@@ -67,8 +69,7 @@ function addFilteredImages(number = 1) {
         return;
     }
 
-    clearImages();
-    fetch(`/search/photos?query=${encodeURIComponent(query)}&page=${number}`)
+    fetch(`/search/photos?query=${encodeURIComponent(query.value)}&page=${number}`)
     .then(response => {
     if (!response.ok)
         throw new Error('Failed to fetch data from API');
@@ -86,18 +87,55 @@ bookmarked.addEventListener('click', () => {
 
 search.addEventListener('click', () => {
     page_counter = 1;
+    clearImages();
     addFilteredImages();
 });
 
-page.addEventListener('scroll', () => {
+async function checkLogin() {
+    const response = await fetch('/login');
+    if (response.ok) {
+        logged = true;
+        console.log("Logged in");
+    } else {
+        logged = false;
+        console.log("Not logged in");
+    }
+}
+
+page.addEventListener('scroll', (event) => {
     if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
         page_counter++;
+        console.log(window.scrollY + window.innerHeight, document.documentElement.scrollHeight)
         if (query.value)
             addFilteredImages(page_counter);
         else
             addRandomImages(page_counter);
     }
-    console.log("Goodbye");
+});
+
+log.addEventListener('click', () => {
+    if (!logged) {
+        localStorage.setItem('logged', true);
+        logged = true;
+        window.location.href = '/oauth/authorize';
+    }
+    else {
+        fetch('/logout')
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to log out');
+            return response.json();
+        }).then(data => {
+            if (data.success) {
+                localStorage.setItem('logged', false);
+                logged = false;
+                console.log('Logged out successfully');
+            } else {
+                console.error('Logout failed');
+            }
+        }).catch(error => {
+            console.error('Logout failed', error);
+        });
+    }
 });
 
 addRandomImages();
